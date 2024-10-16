@@ -27,10 +27,10 @@ variable "location" {
 #   default     = "2024-02-01"
 # }
 
-variable "docker_migration_script_path" {
-  description = "value"
-  default     = "/scripts"
-}
+# variable "docker_migration_script_path" {
+#   description = "value"
+#   default     = "/scripts"
+# }
 
 variable "resource_group_name" {
   description = "The name of the resource group"
@@ -42,20 +42,20 @@ variable "resource_group_location" {
   type        = string
 }
 
-variable "storage_account_name" {
-  description = "The name of the storage account"
-  type        = string
-}
+# variable "storage_account_name" {
+#   description = "The name of the storage account"
+#   type        = string
+# }
 
 # variable "storage_account_primary_access_key" {
 #   description = "The storage account primary access key"
 #   type        = string
 # }
 
-# variable "streamhost_container_image" {
-#   description = "The docker container image to be used by the stream host"
-#   default     = "xmprocontrib.azurecr.io/sh-debian-ai-assistant:latest"
-# }
+variable "streamhost_container_image" {
+  description = "The docker container image to be used by the stream host"
+  default     = "xmprocontrib.azurecr.io/sh-debian-ai-assistant:latest"
+}
 
 # variable log_analytics_id {
 #   description = "This variable holds the ID of the Log Analytics workspace"
