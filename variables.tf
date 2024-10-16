@@ -67,6 +67,6 @@ variable "storage_account_name" {
 #   default     = ""
 # }
 
-# variable "container_streamhost_data" {
-  
-# }
+variable "container_streamhost_data" {
+  description = "Map of streamhost container data"
+}
