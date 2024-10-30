@@ -4,11 +4,8 @@
 
 ## Requirements:
 
-* terraform cli - https://developer.hashicorp.com/terraform/tutorials/aws-get-started/install-cli
 * docker - https://www.docker.com/products/docker-desktop/
-* az cli or azure portal access - https://learn.microsoft.com/en-us/cli/azure/install-azure-cli-windows?tabs=azure-cli
-* shell to run cli - (powershell or ubuntu bash/etc)
-* xmpro-development updated git repo - https://xmpro.visualstudio.com/DefaultCollection/XMPro%20Development/_git/xmpro-development
+* shell to run cli - (powershell or bash/etc)
 * IDE: vscode (optional)
 
 ## Steps to Run the Terraform Configuration:
