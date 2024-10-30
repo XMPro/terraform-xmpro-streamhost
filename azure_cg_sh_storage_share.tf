@@ -5,4 +5,3 @@ resource "azurerm_storage_share" "sh_data" {
   quota                = 10
   depends_on           = [var.storage_account_name]
 }
-
