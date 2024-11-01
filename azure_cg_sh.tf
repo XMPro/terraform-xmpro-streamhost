@@ -9,16 +9,16 @@ resource "azurerm_container_group" "streamhost" {
   resource_group_name = var.resource_group_name
   ip_address_type     = "Public"
   # dns_name_label      = "cg-${var.prefix}-${each.value.name}-${var.environment}-${var.location}"
-  os_type             = "Linux"
+  os_type = "Linux"
 
   container {
-    name = "sh"
+    name   = "sh"
     image  = var.streamhost_container_image
     cpu    = var.streamhost_cpu
     memory = var.streamhost_memory
 
     environment_variables = {
-      "xm__xmpro__Gateway__Id"                    = random_uuid.sh_id.result
+      "xm__xmpro__Gateway__Id" = random_uuid.sh_id.result
       #"xm__xmpro__Gateway__Name"                  = format("SH-%02d-%s-ACI-%s", index(keys(var.container_streamhost_data), each.key) + 1, each.value.name, var.environment)
       "xm__xmpro__Gateway__Name"                  = var.streamhost_name
       "xm__xmpro__Gateway__ServerUrl"             = var.ds_server_url

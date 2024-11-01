@@ -57,52 +57,57 @@ variable "streamhost_container_image" {
   default     = "xmprocontrib.azurecr.io/sh-debian-ai-assistant:latest"
 }
 
-variable log_analytics_id {
+variable "log_analytics_id" {
   description = "This variable holds the ID of the Log Analytics workspace"
   default     = ""
 }
 
-variable log_analytics_primary_shared_key {
+variable "log_analytics_primary_shared_key" {
   description = "This variable holds the primary shared key for the Log Analytics workspace"
   default     = ""
 }
 
-variable create_storage_share {
+variable "create_storage_share" {
   description = "This variable is used to determine if the storage share should be created"
-  default = false
+  default     = false
 }
 
-variable streamhost_name {
+variable "streamhost_name" {
   description = "The name of the streamhost"
   default     = "SH-01-TFACI"
 }
 
-variable ds_server_url {
+variable "ds_server_url" {
   description = "The URL of the DS site"
   default     = "https://ds.xmpro.com"
+  type        = string
+  validation {
+    condition     = can(regex("^https?://", var.ds_server_url))
+    error_message = "The ds_server_url must be a valid HTTP/HTTPS URL."
+  }
 }
 
-variable streamhost_collection_id {
+variable "streamhost_collection_id" {
   description = "The collection ID for the streamhost"
   default     = "default_ds_collection_id"
 }
 
-variable streamhost_secret {
+variable "streamhost_secret" {
   description = "The secret for the streamhost"
-  default = "default_ds_secret"
+  default     = "default_ds_secret"
 }
 
-variable appinsights_connectionstring {
+variable "appinsights_connectionstring" {
   description = "The connection string for the Application Insights"
   default     = "InstrumentationKey=00000000-0000-0000-0000-000000000000"
 }
 
-variable streamhost_cpu {
+variable "streamhost_cpu" {
   description = "The container CPU(vcpu)for the streamhost"
   default     = 1
 }
 
-variable streamhost_memory {
+variable "streamhost_memory" {
   description = "The container memory(GB) for the streamhost"
   default     = 4
 }

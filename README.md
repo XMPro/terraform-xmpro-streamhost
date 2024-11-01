@@ -27,8 +27,14 @@
     | `streamhost_container_image`          | [**optional**] Specifies the image to be used for the streamhost instance     |
 
 
-- Please update the values in `module_sh`/`variables.tf`. These variables are utilized by the resources within the `module_sh` directory.
-- Please update the values of `ai_gateway_secret` and `default_gateway_secret` base on your configuration in `module_sh`/`variables.tf`.
+## Variable Configuration
+
+1. Navigate to the `module_sh/variables.tf` file
+2. Update the following security-sensitive variables:
+   * `ai_gateway_secret`: The authentication secret for Application Insights integration
+   * `default_gateway_secret`: The default secret key for gateway authentication
+
+**Note:** These secrets should be stored securely and never committed to version control.
 
 - Before running the Terraform commands, ensure that you are authorized in Azure by following these steps:
     1. Open a command prompt (CMD) and run `az login`.
