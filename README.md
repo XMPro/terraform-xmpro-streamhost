@@ -1,127 +1,61 @@
-# XMPro - Streamhost Terraform Module
+# Terraform Module Example module_sh
 
-## Overview
-This Terraform module provides a configuration for deploying resources on Azure using Terraform CLI Commands. It includes customizable variables for resource naming, environment specifications, and resource allocations.
+**IMPORTANT:** Press `Ctrl + Shift + V` to preview the Markdown file in Visual Studio Code.
 
-## Prerequisites:
-* Terraform CLI
+## Requirements:
+
+* docker - https://www.docker.com/products/docker-desktop/
 * shell to run cli - (powershell or bash/etc)
 * IDE: vscode (optional)
 
-## Usage:
+## Steps to Run the Terraform Configuration:
 
-### 1. Copy paste into your terraform directory
+- Things to consider to update in `main.tf`
+    |   properties                          | details                                                                       |
+    | --                                    | --                                                                            |
+    | `prefix`                              | Specifies the prefix used for all resources.                                  |
+    | `environment`                         | Specifies the environment for all resources.                                  |
+    | `location`                            | Specifies the Azure location where all resources will be created.             |
+    | `imageversion`                        | Specifies the version of the Docker image to use.                             |
+    | `name`                                | Specifies the resource names                                                  |
+    | `gateway_server_url`                  | The URL of your Data Source (DS) DNS.                                         |
+    | `gateway_collection_id`               | The collection ID from your Data Source (DS)                                  |
+    | `gateway_secret`                      | The secret key from your Data Source (DS) collection                          |
+    | `appinsights_connectionstring`        | [**Optional**] The connection string for Azure Application Insights           |
+    | `sh_cpu`                              | Defines the number of CPUs allocated to your container                        |
+    | `sh_memory`                           | Defines the amount of memory (in GB) allocated to your container              |
+    | `streamhost_container_image`          | [**optional**] Specifies the image to be used for the streamhost instance     |
 
-```
-    module "streamhost" {
-        source  = "XMPro/streamhost/xmpro"
-        version = "0.0.5"
-        # insert the 5 required variables here
-    }
-```
 
-### 2. Configure required parameters in `main.tf`
+## Variable Configuration
 
-Inside of the directory where your root module is located, update security-sensitive and other required variables:
-
-- `ds_server_url`           : Datastream URL
-- `streamhost_collection_id`: Default collection key for ds authentication.
-- `streamhost_secret`       : Default secret key for ds authentication.
-- `resource_group_name`     : Name of the resource group.
-- `resource_group_location` : Location of the resource group.
+1. Navigate to the `module_sh/variables.tf` file
+2. Update the following security-sensitive variables:
+   * `ai_gateway_secret`: The authentication secret for Application Insights integration
+   * `default_gateway_secret`: The default secret key for gateway authentication
 
 **Note:** These secrets should be stored securely and never committed to version control.
 
-### 3. Other properties that you want to configure for your deployment
+- Before running the Terraform commands, ensure that you are authorized in Azure by following these steps:
+    1. Open a command prompt (CMD) and run `az login`.
+    2. You will be prompted to navigate to a URL.
+    3. Access the URL in your browser, and you will be asked to enter the code displayed in the CMD.
+    4. After entering the code, log in using your email account.
+    5. Once logged in, you will receive a confirmation that you are signed in, and you can close the browser.
+    6. Select the subscription you will be using. For this project, it is the Visual Studio subscription.
 
-Update the following properties used in `main.tf` to customize your deployment:
+- run the following commands
 
-| Property                             | Description                                                                                  |
-|------------------------------        |-------------------------------------------------------------------                           |
-| `prefix`                             | Prefix for all resource names                                                                |
-| `environment`                        | Specifies the target environment (e.g., dev, prod) for the resources                         |
-| `location`                           | Azure region for resource creation                                                           |
-| `resource_group_name`                | [required] Azure region for resource creation                                                |
-| `resource_group_location`            | [required] Azure region for resource creation                                                |
-| `streamhost_name`                    | Streamhost name                                                                              |
-| `ds_server_url`                      | [required] URL of the Data Stream (DS) where your collection is located                      |
-| `streamhost_collection_id`           | [required] Collection ID from your Data Source (DS) collection                               |
-| `streamhost_secret`                  | [required] Secret key from your Data Source (DS) collection                                  |
-| `streamhost_container_image`         | Version of the Docker image to deploy                                                        |
-| `appinsights_connectionstring`       | Connection string for Azure Application Insights                                             |
-| `log_analytics_id`                   | Connection string for Azure Application Insights                                             |
-| `log_analytics_primary_shared_key`   | Connection string for Azure Application Insights                                             |
-| `streamhost_cpu`                     | CPU count allocated to the container                                                         |
-| `streamhost_memory`                  | Memory allocation (in GB) for the container                                                  |
-| `environment_variables`              | Specify the environment keys needed in the container                                         |
-| `volumes`                            | Specify the volume attached to the container streamhost                                      |
-| `use_existing_storage_account_share` | Default is `true`. Set to `true` to create a new share, or `false` to use an existing share. |
+    | Command             | Description                                                                                             |
+    |---------------------|-----------------------------------------------------------------------------                            |
+    | `terraform init`    | Initializes the Terraform configuration by downloading necessary plugins and setting up the backend.    |
+    | `terraform fmt`     | Formats the Terraform configuration files to a canonical format and style.                              |
+    | `terraform validate`| Validates the Terraform configuration files for syntax and internal consistency.                        |
+    | `terraform plan`    | Creates an execution plan, showing what actions Terraform will take to achieve the desired state.       |
+    | `terraform apply`   | Applies the changes required to reach the desired state of the configuration.                           |
+    | `terraform destroy` | Destroys the Terraform-managed infrastructure, reverting all changes made by `terraform apply`.         |
 
-If you set `use_existing_storage_account_share` to `true`, you must provide the details of the existing storage account, including the storage account name, share name, and access key.
-
-### 4. Example format
-
-```
-    module "streamhost" {
-
-        source = "XMPro/streamhost/xmpro"
-
-        streamhost_name                  = "<streamhost_name>"
-        streamhost_cpu                   = "<stremhost_cpu>"
-        streamhost_memory                = "<streamhost_memory>"
-        streamhost_container_image       = "<container_image>"
-     
-        streamhost_collection_id         = "<datastream_collection_id>"
-        streamhost_secret                = "<datastream_collection_secret>"
-        appinsights_connectionstring     = "<appinsights_connectionstring>"
-        ds_server_url                    = "<datastream_stream_url>"
-
-        prefix                           = "<prefix>"
-        environment                      = "<environment>"
-        location                         = "<location>"
-        log_analytics_id                 = "<workspace_id>"
-        log_analytics_primary_shared_key = "<primary_shared_key>"
-        resource_group_name              = "<resource_group_name>"
-        resource_group_location          = "<resource_group_location>"
-
-        environment_variables            = {
-            "key" : "value"
-        }
-
-        volumes                          =  volumes = [{
-            name                 = "<volume-name>"
-            mount_path           = "<volume-path>"
-            read_only            = false
-            share_name           = "<volume_name>"
-            storage_account_name = "<storage_name>"
-            storage_account_key  = "<primary_access_key>"
-        }]
-
-        use_existing_storage_account_share = true
-    }
-```
-
-## Authentication Setup
-
-Before running the Terraform commands, ensure that you are authorized in Azure by following these steps:
-1. Open a command prompt (CMD) and run `az login`.
-2. You will be prompted to navigate to a URL.
-3. Access the URL in your browser, and you will be asked to enter the code displayed in the CMD.
-4. After entering the code, log in using your email account.
-5. Once logged in, you will receive a confirmation that you are signed in, and you can close the browser.
-6. Select the subscription you will be using. (e.g., Visual Studio subscription).
-
-## Running the Terraform Configuration
-
-Once variables are set and authentication is complete, run the following Terraform commands in order:
-
-| Command             | Description                                                                                             |
-|---------------------|-----------------------------------------------------------------------------                            |
-| `terraform init`    | Initializes the Terraform configuration by downloading necessary plugins and setting up the backend.    |
-| `terraform apply`   | Applies the changes required to reach the desired state of the configuration.                           |
-| `terraform destroy` | Destroys the Terraform-managed infrastructure, reverting all changes made by `terraform apply`.         |
-
-You can visit the [Azure Portal](https://portal.azure.com/#home) to verify the resources that have been created.
+- You can visit the [Azure Portal](https://portal.azure.com/#home) to verify the resources that have been created.
 
 
 
