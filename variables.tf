@@ -3,8 +3,8 @@ variable "prefix" {
   default     = "xmdemo"
 }
 variable "environment" {
-  description = "The prefix used for all resources in this example"
-  default     = "jonahf"
+  description = "The environment name used for resource naming and tagging"
+  default     = "demo"
 }
 
 variable "location" {
@@ -29,6 +29,7 @@ variable "resource_group_location" {
 variable "streamhost_name" {
   description = "The name of the stream host"
   type        = string
+  default     = "SH-01-TFACI-DEFAULT"
 }
 
 variable "ds_server_url" {
@@ -57,11 +58,13 @@ variable "appinsights_connectionstring" {
   description = "The connection string of the application insights"
   type        = string
   sensitive   = true
+  default = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope-1.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/"
 }
 
 variable "streamhost_cpu" {
   description = "The CPU of the stream host"
   type = number
+  default = 1
   validation {
     condition     = var.streamhost_cpu >= 0.5 && var.streamhost_cpu <= 4
     error_message = "CPU must be between 0.5 and 4 cores."
@@ -71,6 +74,7 @@ variable "streamhost_cpu" {
 variable "streamhost_memory" {
   description = "The memory of the stream host"
   type = number
+  default = 4
   validation {
     condition     = var.streamhost_memory >= 1 && var.streamhost_memory <= 16
     error_message = "Memory must be between 1 and 16 GB."
@@ -85,11 +89,13 @@ variable "streamhost_container_image" {
 variable log_analytics_id {
   description = "This variable holds the ID of the Log Analytics workspace"
   type = string
+  default = ""
 }
 
 variable log_analytics_primary_shared_key {
   description = "This variable holds the primary shared key for the Log Analytics workspace"
   type = string
+  default = ""
 }
 
 variable "environment_variables" {
