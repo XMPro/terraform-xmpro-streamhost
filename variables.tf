@@ -1,25 +1,46 @@
 variable "prefix" {
   description = "The prefix used for all resources in this example"
-  default     = "xmdemo"
+  type        = string
 }
 variable "environment" {
   description = "The environment name used for resource naming and tagging"
-  default     = "demo"
+  type        = string
 }
 
 variable "location" {
   description = "The Azure location where all resources in this example should be created"
-  default     = "australiaeast"
+  type        = string
 }
 
 variable "resource_group_name" {
   description = "The name of the resource group"
   type        = string
+  default     = "rg-xmpro-sh-default-admin-australiaeast"
+  validation {
+    condition     = can(regex("^rg-", var.resource_group_name))
+    error_message = "Resource group name must start with 'rg-'"
+  }
 }
 
 variable "resource_group_location" {
   description = "The location of the resource group"
   type        = string
+  default     = "australiaeast"
+  validation {
+    condition     = contains([
+      "eastus", "eastus2", "southcentralus", "westus2", "westus3", "australiaeast",
+      "southeastasia", "northeurope", "swedencentral", "uksouth", "westeurope",
+      "centralus", "southafricanorth", "centralindia", "eastasia", "japaneast",
+      "koreacentral", "canadacentral", "francecentral", "germanywestcentral",
+      "norwayeast", "switzerlandnorth", "uaenorth", "brazilsouth", "centralusstage",
+      "eastusstage", "eastus2stage", "northcentralus", "westus", "japanwest",
+      "jioindiawest", "westcentralus", "southafricawest", "australiacentral",
+      "australiacentral2", "australiasoutheast", "japannorth", "koreasouth",
+      "southindia", "westindia", "canadaeast", "francesouth", "germanynorth",
+      "norwaywest", "switzerlandwest", "ukwest", "uaecentral", "brazilsoutheast"
+    ], var.resource_group_location)
+    error_message = "Must use an available Azure location. See https://azure.microsoft.com/en-us/global-infrastructure/locations/"
+  }
 }
 
 #-----------------------
@@ -52,7 +73,7 @@ variable "acr_password" {
 variable "streamhost_name" {
   description = "The name of the stream host"
   type        = string
-  default     = "SH-01-TFACI-DEFAULT"
+  default     = ""
 }
 
 variable "ds_server_url" {
@@ -71,7 +92,7 @@ variable "streamhost_collection_id" {
   sensitive   = true
 }
 
-variable "streamhost_secret" {
+variable "streamhost_collection_secret" {
   description = "The collection secret of the stream host"
   type        = string
   sensitive   = true
@@ -81,7 +102,7 @@ variable "appinsights_connectionstring" {
   description = "The connection string of the application insights"
   type        = string
   sensitive   = true
-  default     = "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://westeurope-1.in.applicationinsights.azure.com/;LiveEndpoint=https://westeurope.livediagnostics.monitor.azure.com/"
+  default     = ""
 }
 
 variable "streamhost_cpu" {
@@ -140,8 +161,26 @@ variable "volumes" {
   default = []
 }
 
-variable "use_existing_storage_account_share" {
+variable "use_existing_storage_account" {
   description = "set to true to use an existing storage account share, false to create a new one"
-  type        = bool
-  default     = true
+  type = bool
+  default = false
+}
+
+variable "use_existing_app_insights" {
+  description = "set to true to use an existing application insights, false to create a new one"
+  type = bool
+  default = false
+}
+
+variable "use_existing_log_analytics" {
+  description = "set to true to use an existing log analytics workspace, false to create a new one"
+  type = bool
+  default = false
+}
+
+variable "use_existing_rg" {
+  description = "set to true to use an existing resource group, false to create a new one"
+  type = bool
+  default = false
 }

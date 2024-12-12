@@ -3,9 +3,9 @@ resource "random_uuid" "sh_id" {
 }
 
 resource "azurerm_container_group" "streamhost" {
-  name                = "cg-${var.streamhost_name}"
-  location            = var.resource_group_location
-  resource_group_name = var.resource_group_name
+  name                = "cg-${local.sh_name}"
+  resource_group_name = local.resource_group_name
+  location            = local.resource_group_location
   ip_address_type     = "Public"
   os_type             = "Linux"
 
@@ -20,22 +20,20 @@ resource "azurerm_container_group" "streamhost" {
     cpu    = var.streamhost_cpu
     memory = var.streamhost_memory
 
-
-
     environment_variables = merge(
       var.environment_variables,
       {
         "xm__xmpro__Gateway__Id"                    = random_uuid.sh_id.result
-        "xm__xmpro__Gateway__Name"                  = var.streamhost_name
+        "xm__xmpro__Gateway__Name"                  = local.sh_name
         "xm__xmpro__Gateway__ServerUrl"             = var.ds_server_url
         "xm__xmpro__Gateway__CollectionId"          = var.streamhost_collection_id
-        "xm__xmpro__Gateway__Secret"                = var.streamhost_secret
-        "xm__ApplicationInsights__ConnectionString" = var.appinsights_connectionstring
+        "xm__xmpro__Gateway__Secret"                = var.streamhost_collection_secret
+        "xm__ApplicationInsights__ConnectionString" = local.app_insights_conn_string
       }
     )
 
     dynamic "volume" {
-      for_each = var.use_existing_storage_account_share ? var.volumes : []
+      for_each = var.use_existing_storage_account ? var.volumes : []
       content {
         name                 = volume.value.name
         mount_path           = volume.value.mount_path
@@ -54,15 +52,15 @@ resource "azurerm_container_group" "streamhost" {
 
   diagnostics {
     log_analytics {
-      workspace_id  = var.log_analytics_id
-      workspace_key = var.log_analytics_primary_shared_key
+      workspace_id  = local.log_analytics_id
+      workspace_key = local.log_analytics_primary_shared_key
       log_type      = "ContainerInsights"
     }
   }
 
   tags = {
-    product    = "XMPRO-${var.streamhost_name}"
-    createdby  = "admin-${var.streamhost_name}"
+    product    = "XMPRO-${local.sh_name}"
+    createdby  = "admin-${local.sh_name}"
     createdfor = "${var.prefix}-${var.environment}-docker"
   }
 }

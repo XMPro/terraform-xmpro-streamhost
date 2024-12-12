@@ -5,8 +5,8 @@ This Terraform module provides a configuration for deploying resources on Azure 
 
 ## Prerequisites:
 * Terraform CLI
-* shell to run cli - (powershell or bash/etc)
-* IDE: vscode (optional)
+* Shell to run CLI (PowerShell or Bash/etc)
+* IDE: VSCode (optional)
 
 ## Usage:
 
@@ -24,52 +24,85 @@ This Terraform module provides a configuration for deploying resources on Azure 
 
 Inside of the directory where your root module is located, update security-sensitive and other required variables:
 
-- `ds_server_url`           : Datastream URL
-- `streamhost_collection_id`: Default collection key for ds authentication.
-- `streamhost_secret`       : Default secret key for ds authentication.
-- `resource_group_name`     : Name of the resource group.
-- `resource_group_location` : Location of the resource group.
+| Property                       | Description                                                          |
+|------------------------------  |-----------------------------------------------                       |
+| `prefix`                       | Prefix for all resource names                                        |
+| `environment`                  | Specifies the target environment (e.g., dev, prod) for the resources |
+| `location`                     | Azure region for resource creation                                   |
+| `ds_server_url`                | Datastream URL                                                       |
+| `streamhost_collection_id`     | Default collection key for ds authentication.                        |
+| `streamhost_collection_secret` | Default secret key for ds authentication.                            | 
+
 
 **Note:** These secrets should be stored securely and never committed to version control.
 
 ### 3. Other properties that you want to configure for your deployment
 
+## Core variables
+
 Update the following properties used in `main.tf` to customize your deployment:
 
-| Property                             | Description                                                                                  |
-|------------------------------        |-------------------------------------------------------------------                           |
-| `prefix`                             | Prefix for all resource names                                                                |
-| `environment`                        | Specifies the target environment (e.g., dev, prod) for the resources                         |
-| `location`                           | Azure region for resource creation                                                           |
-| `resource_group_name`                | [required] Azure region for resource creation                                                |
-| `resource_group_location`            | [required] Azure region for resource creation                                                |
-| `streamhost_name`                    | Streamhost name                                                                              |
-| `ds_server_url`                      | [required] URL of the Data Stream (DS) where your collection is located                      |
-| `streamhost_collection_id`           | [required] Collection ID from your Data Source (DS) collection                               |
-| `streamhost_secret`                  | [required] Secret key from your Data Source (DS) collection                                  |
-| `streamhost_container_image`         | Version of the Docker image to deploy                                                        |
-| `appinsights_connectionstring`       | Connection string for Azure Application Insights                                             |
-| `log_analytics_id`                   | Connection string for Azure Application Insights                                             |
-| `log_analytics_primary_shared_key`   | Connection string for Azure Application Insights                                             |
-| `streamhost_cpu`                     | CPU count allocated to the container                                                         |
-| `streamhost_memory`                  | Memory allocation (in GB) for the container                                                  |
-| `environment_variables`              | Specify the environment keys needed in the container                                         |
-| `volumes`                            | Specify the volume attached to the container streamhost                                      |
-| `use_existing_storage_account_share` | Default is `true`. Set to `true` to create a new share, or `false` to use an existing share. |
+| Configuration Area | Variable                              | Required   | Description                                           |  Default                                                |
+|----------          |------------------------------         | ----       | ------------------                                    |------------------                                       |
+|  **streamhost**    | `streamhost_name`                     | No         | Streamhost name                                       | `sh-01-tfaci-default-<prefix>-<environment>-<location>` |
+|  **streamhost**    | `streamhost_container_image`          | No         | Version of the Docker image to deploy                 | `latest`                                                |
+|  **streamhost**    | `streamhost_cpu`                      | No         | CPU count allocated to the container                  | `1`                                                     |
+|  **streamhost**    | `streamhost_memory`                   | No         | Memory allocation (in GB) for the container           | `4`                                                     |  
+|  **configuration** | `environment_variables`               | No         | Specify the environment keys needed in the container  | `[]`                                                    |
 
-If you set `use_existing_storage_account_share` to `true`, you must provide the details of the existing storage account, including the storage account name, share name, and access key.
+## Feature Flags
+
+| Configuration Area | Variable                             | Required   | Description                                                                 | Default |
+|--------------------|--------------------------------------|------------|-----------------------------------------------------------------------------|---------|
+| **Resource Group** | `use_existing_rg`                    | No         | Set to true to use existing resource group                                  | `false` |
+| **Resource Group** | `resource_group_name`                | No         | Provide resource group name if variable `use_existing_rg` is set to true    | `N/A`   |
+| **Resource Group** | `resource_group_location`            | No         | Provide resource group location if variable `use_existing_rg` is set to true| `N/A`   |
+| **Monitoring**     | `use_existing_app_insights`          | No         | Set to true to use existing Application Insights                            | `false` |
+| **Monitoring**     | `appinsights_connectionstring`       | No         | Provide Application Insights connection string if `use_existing_app_insights` is true | `N/A` |
+| **Monitoring**     | `use_existing_log_analytics`         | No         | Set to true to use existing Log Analytics                                   | `false` |
+| **Monitoring**     | `log_analytics_id`                   | No         | Provide Log Analytics workspace ID if `use_existing_log_analytics` is true  | `N/A`   |
+| **Monitoring**     | `log_analytics_primary_shared_key`   | No         | Provide Log Analytics workspace primary shared key if `use_existing_log_analytics` is true | `N/A` |
+| **Storage**        | `use_existing_storage_account`       | No         | Set to true to use existing storage account                                 | `false` |
+| **Storage**        | `volumes`                            | No         | Provide volume configuration with storage account details if `use_existing_storage_account` is true | `[]` |
+
+<br>
+
+> **Important Configuration Notes:**
+>
+> When using existing resources:
+>
+> **Storage Account Share:**
+> - If `use_existing_storage_account_share = true`, you must provide:
+>   - Share name 
+>   - Storage account name
+>   - Storage account access key
+>
+> **Log Analytics:**
+> - If `use_existing_log_analytics = true`, you must provide:
+>   - Log analytics ID
+>   - Log analytics primary shared key
+>
+> **Resource Group:**
+> - If `use_existing_rg = true`, you must provide:
+>   - Resource group name
+>   - Resource group location
+>
+> These details are required for the module to properly connect to your existing Azure resources.
 
 ### 4. Example format
 
 Basic Configuration settings
 ```
     module "streamhost" {
-        source = "XMPro/streamhost/xmpro"
-
-        ds_server_url                    = "<datastream_stream_url>"
-        streamhost_name                  = "<streamhost_name>"
-        streamhost_collection_id         = "<datastream_collection_id>"
-        streamhost_secret                = "<datastream_collection_secret>"
+        source                          = "XMPro/streamhost/xmpro"
+        
+        prefix                          = "<prefix>"
+        environment                     = "<environment>"
+        location                        = "<location>"
+        ds_server_url                   = "<datastream_stream_url>"
+        streamhost_name                 = "<streamhost_name>"
+        streamhost_collection_id        = "<datastream_collection_id>"
+        streamhost_collection_secret    = "<datastream_collection_secret>"
     }
 ```
 
@@ -85,16 +118,14 @@ Advanced Configuration settings
         streamhost_memory                = "<streamhost_memory>"
         streamhost_container_image       = "<container_image>"
      
-        streamhost_collection_id         = "<datastream_collection_id>"
-        streamhost_secret                = "<datastream_collection_secret>"
-        appinsights_connectionstring     = "<appinsights_connectionstring>"
         ds_server_url                    = "<datastream_stream_url>"
+        streamhost_collection_id         = "<datastream_collection_id>"
+        streamhost_collection_secret     = "<datastream_collection_secret>"
 
-        prefix                           = "<prefix>"
-        environment                      = "<environment>"
-        location                         = "<location>"
-        log_analytics_id                 = "<workspace_id>"
-        log_analytics_primary_shared_key = "<primary_shared_key>"
+        use_existing_app_insights         = true
+        appinsights_connectionstring      = <application_insight_connection_string>
+
+        use_existing_rg                   = true 
         resource_group_name              = "<resource_group_name>"
         resource_group_location          = "<resource_group_location>"
 
@@ -102,16 +133,23 @@ Advanced Configuration settings
             "key" : "value"
         }
 
+        use_existing_storage_account     = true
+
         volumes                          =  volumes = [{
-            name                 = "<volume-name>"
-            mount_path           = "<volume-path>"
-            read_only            = false
-            share_name           = "<volume_name>"
-            storage_account_name = "<storage_name>"
-            storage_account_key  = "<primary_access_key>"
+            name                         = "<volume-name>"
+            mount_path                   = "<volume-path>"
+            read_only                    = false
+            share_name                   = "<volume_name>"
+            storage_account_name         = "<storage_name>"
+            storage_account_key          = "<primary_access_key>"
         }]
 
-        use_existing_storage_account_share = true
+        use_existing_log_analytics        = true 
+
+        log_analytics_id                  = <log_analytics_id>
+        log_analytics_primary_shared_key  = <log_analytics_primary_shared_key>
+
+
     }
 ```
 
