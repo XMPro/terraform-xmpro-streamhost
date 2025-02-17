@@ -2,7 +2,7 @@
 #This where added for azure_containerinstances.tf
 variable "prefix" {
   description = "The prefix used for all resources in this example"
-  default     = "shcontainers"
+  default     = "default"
 }
 
 variable "environment" {
