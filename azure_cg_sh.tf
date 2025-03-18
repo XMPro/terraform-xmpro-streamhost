@@ -1,4 +1,3 @@
-
 resource "random_uuid" "sh_id" {
 }
 
@@ -15,21 +14,31 @@ resource "azurerm_container_group" "streamhost" {
     password = var.acr_password
   }
   container {
-    name   = "sh"
-    image  = var.streamhost_container_image
+    name   = "aci-${local.sh_name}"
+    image  = local.streamhost_container_image_with_version
     cpu    = var.streamhost_cpu
     memory = var.streamhost_memory
 
     environment_variables = merge(
       var.environment_variables,
       {
-        "xm__xmpro__Gateway__Id"                    = random_uuid.sh_id.result
-        "xm__xmpro__Gateway__Name"                  = local.sh_name
-        "xm__xmpro__Gateway__ServerUrl"             = var.ds_server_url
-        "xm__xmpro__Gateway__CollectionId"          = var.streamhost_collection_id
-        "xm__xmpro__Gateway__Secret"                = var.streamhost_collection_secret
+        "xm__xmpro__Gateway__Id"           = random_uuid.sh_id.result
+        "xm__xmpro__Gateway__Name"         = "aci-${local.sh_name}"
+        "xm__xmpro__Gateway__ServerUrl"    = var.ds_server_url
+        "xm__xmpro__Gateway__CollectionId" = var.streamhost_collection_id
+      }, 
+      (local.effective_enable_app_insights_telemetry && local.app_insights_conn_string != null) ? {
+        "xm__xmpro__gateway__featureflags__enableapplicationinsightstelemetry" = true
+      } : {}
+    )
+
+    secure_environment_variables = merge(
+      {
+        "xm__xmpro__Gateway__Secret" = var.streamhost_collection_secret
+      }, 
+      (local.app_insights_conn_string != null) ? {
         "xm__ApplicationInsights__ConnectionString" = local.app_insights_conn_string
-      }
+      } : {}
     )
 
     dynamic "volume" {
@@ -50,17 +59,16 @@ resource "azurerm_container_group" "streamhost" {
     }
   }
 
-  diagnostics {
-    log_analytics {
-      workspace_id  = local.log_analytics_id
-      workspace_key = local.log_analytics_primary_shared_key
-      log_type      = "ContainerInsights"
+  dynamic "diagnostics" {
+    for_each = (local.log_analytics_id != null && local.log_analytics_primary_shared_key != null) ? [1] : []
+    content {
+      log_analytics {
+        workspace_id  = local.log_analytics_id
+        workspace_key = local.log_analytics_primary_shared_key
+        log_type      = "ContainerInsights"
+      }
     }
   }
 
-  tags = {
-    product    = "XMPRO-${local.sh_name}"
-    createdby  = "admin-${local.sh_name}"
-    createdfor = "${var.prefix}-${var.environment}-docker"
-  }
+  tags = var.tags
 }
