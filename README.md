@@ -49,6 +49,20 @@ Update the following properties used in `main.tf` to customize your deployment:
 | **streamhost**     | `streamhost_cpu`                  | No       | CPU count allocated to the container                                                                                                 | `1`                                   |
 | **streamhost**     | `streamhost_memory`               | No       | Memory allocation (in GB) for the container                                                                                          | `4`                                   |
 
+## Custom Python Packages
+
+The streamhost now supports dynamically adding custom Python packages via environment variables:
+
+| Environment Variable   | Description                                                                                                    | Example Value                                                                                           |
+|------------------------|----------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------|
+| `ADDITIONAL_INSTALLS`  | System-level dependencies and packages required for Python modules                                             | `build-base gcc g++ libgcc libstdc++ musl-dev python3-dev openblas-dev freetype-dev libpng-dev py3-pip` |
+| `SH_PIP_MODULES`       | Python packages to be installed via pip, allowing for custom data processing and machine learning capabilities | `pandas scikit-learn numpy`                                                                             |
+| `PIP_REQUIREMENTS_PATH`| Path to directory containing requirements.txt file (optional, defaults to `/app`)                              | `/app/requirements`                                                                                     |
+
+> **Note:** This feature for dynamically installing custom APKs and Python packages is only available when using the default container image. Custom container images may not support this functionality.
+
+You can specify these environment variables in the `environment_variables` section of your configuration to extend the streamhost's capabilities with additional Python packages.
+
 ## Feature Flags
 
 | Configuration Area | Variable                           | Required | Description                                                                                         | Default |
@@ -254,7 +268,10 @@ Advanced Configuration settings
         resource_group_location          = "<resource_group_location>"
 
         environment_variables            = {
-            "key" : "value"
+            "key" : "value",
+            "ADDITIONAL_INSTALLS" : "build-base gcc g++ libgcc libstdc++ musl-dev python3-dev openblas-dev freetype-dev libpng-dev py3-pip",
+            "SH_PIP_MODULES" : "pandas scikit-learn numpy",
+            "PIP_REQUIREMENTS_PATH" : "/app"
         }
 
         use_existing_storage_account     = true
